@@ -1,0 +1,44 @@
+name: Auto Build
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller PyQt6
+        $req = Get-ChildItem -Path . -Recurse -Filter requirements.txt | Select-Object -First 1
+        if ($req) { pip install -r "$($req.FullName)" }
+
+    - name: Build EXE
+      shell: pwsh
+      run: |
+        $files = Get-ChildItem -Path . -Recurse -Filter *.py
+        $target = $files | Where-Object { $_.Name -match "ScreenMind|main" } | Select-Object -First 1
+        if (-not $target) { $target = $files | Select-Object -First 1 }
+        if (-not $target) { throw "Python file not found" }
+        
+        # Liteの指定通り、コンソールを有効（--noconsoleなし）にしてビルド
+        pyinstaller --onefile "$($target.FullName)" --name ScreenMind
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ScreenMind-Windows
+        path: dist/
