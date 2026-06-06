@@ -1,0 +1,26 @@
+{
+  "name": "ScreenMind",
+  "version": "4.1",
+  "description": "AI-Powered Workflow Platform",
+  "author": "ScreenMind Team",
+  "license": "MIT",
+  "homepage": "https://screenmind.example.com",
+  "documentation": "https://screenmind.example.com/docs",
+  "repository": "https://github.com/screenmind/screenmind",
+  "keywords": [
+    "AI",
+    "LLM",
+    "Workflow",
+    "Automation",
+    "Desktop"
+  ],
+  "categories": [
+    "Productivity",
+    "AI",
+    "Utilities"
+  ],
+  "screenshots": [
+    "https://screenmind.example.com/screenshots/main.png",
+    "https://screenmind.example.com/screenshots/dashboard.png"
+  ]
+}

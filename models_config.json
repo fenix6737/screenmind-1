@@ -1,0 +1,180 @@
+{
+  "version": "4.1",
+  "last_updated": "2026-06-06",
+  "models": [
+    {
+      "id": "gemma-4-12b",
+      "name": "Gemma 4 12B",
+      "type": "local",
+      "provider": "llama.cpp",
+      "description": "マルチモーダル対応、高性能ローカルモデル",
+      "capabilities": [
+        "text",
+        "image",
+        "code",
+        "reasoning"
+      ],
+      "endpoint": "http://localhost:8080",
+      "model_path": "/path/to/gemma-4-12b-iq4_xs.gguf",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048,
+        "context_length": 8192
+      },
+      "performance": {
+        "avg_response_time_ms": 150,
+        "tokens_per_second": 20,
+        "memory_mb": 8000
+      },
+      "enabled": true,
+      "priority": 1
+    },
+    {
+      "id": "mistral-7b",
+      "name": "Mistral 7B",
+      "type": "local",
+      "provider": "llama.cpp",
+      "description": "高速、軽量なローカルモデル",
+      "capabilities": [
+        "text",
+        "code"
+      ],
+      "endpoint": "http://localhost:8080",
+      "model_path": "/path/to/mistral-7b-iq4_xs.gguf",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048,
+        "context_length": 8192
+      },
+      "performance": {
+        "avg_response_time_ms": 80,
+        "tokens_per_second": 40,
+        "memory_mb": 4000
+      },
+      "enabled": true,
+      "priority": 2
+    },
+    {
+      "id": "llama2-7b",
+      "name": "Llama 2 7B",
+      "type": "local",
+      "provider": "llama.cpp",
+      "description": "安定した汎用ローカルモデル",
+      "capabilities": [
+        "text",
+        "reasoning"
+      ],
+      "endpoint": "http://localhost:8080",
+      "model_path": "/path/to/llama-2-7b-iq4_xs.gguf",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048,
+        "context_length": 4096
+      },
+      "performance": {
+        "avg_response_time_ms": 100,
+        "tokens_per_second": 30,
+        "memory_mb": 4500
+      },
+      "enabled": true,
+      "priority": 3
+    },
+    {
+      "id": "openai-gpt4",
+      "name": "OpenAI GPT-4",
+      "type": "cloud",
+      "provider": "openai",
+      "description": "クラウドベースの最高性能モデル",
+      "capabilities": [
+        "text",
+        "image",
+        "code",
+        "reasoning",
+        "analysis"
+      ],
+      "endpoint": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 4096
+      },
+      "performance": {
+        "avg_response_time_ms": 2000,
+        "tokens_per_second": 100,
+        "memory_mb": 0
+      },
+      "enabled": false,
+      "priority": 4
+    },
+    {
+      "id": "openai-gpt35",
+      "name": "OpenAI GPT-3.5",
+      "type": "cloud",
+      "provider": "openai",
+      "description": "クラウドベースの高速モデル",
+      "capabilities": [
+        "text",
+        "code",
+        "reasoning"
+      ],
+      "endpoint": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 4096
+      },
+      "performance": {
+        "avg_response_time_ms": 1000,
+        "tokens_per_second": 150,
+        "memory_mb": 0
+      },
+      "enabled": false,
+      "priority": 5
+    }
+  ],
+  "auto_switching": {
+    "enabled": true,
+    "strategy": "adaptive",
+    "fallback_model": "mistral-7b",
+    "rules": [
+      {
+        "condition": "has_image",
+        "preferred_model": "gemma-4-12b",
+        "reason": "マルチモーダル対応が必要"
+      },
+      {
+        "condition": "is_code_question",
+        "preferred_model": "gemma-4-12b",
+        "reason": "コード生成に最適"
+      },
+      {
+        "condition": "is_simple_query",
+        "preferred_model": "mistral-7b",
+        "reason": "高速応答が優先"
+      },
+      {
+        "condition": "is_reasoning_heavy",
+        "preferred_model": "gemma-4-12b",
+        "reason": "複雑な推論に対応"
+      }
+    ]
+  },
+  "caching": {
+    "enabled": true,
+    "ttl_seconds": 3600,
+    "max_cache_size_mb": 500,
+    "compression": true
+  },
+  "performance_monitoring": {
+    "enabled": true,
+    "track_response_times": true,
+    "track_token_usage": true,
+    "track_error_rates": true,
+    "report_interval_seconds": 300
+  }
+}
