@@ -1,0 +1,8 @@
+# ScreenMind v4.1 - 依存ライブラリ
+PyQt6>=6.6.0
+Pillow>=10.0.0
+httpx>=0.27.0
+keyboard>=0.13.5
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pyinstaller>=6.0.0
