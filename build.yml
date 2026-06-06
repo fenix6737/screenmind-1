@@ -1,0 +1,75 @@
+name: ScreenMind Continuous Build
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # 手動実行も可能にする
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # 1つのOSが失敗しても他を続行
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            artifact_name: ScreenMind-Windows
+            output_path: dist/windows/ScreenMind.exe
+          - os: macos-latest
+            artifact_name: ScreenMind-macOS
+            output_path: dist/macos/ScreenMind.app
+          - os: ubuntu-latest
+            artifact_name: ScreenMind-Linux
+            output_path: dist/linux/ScreenMind
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip' # pipのキャッシュを有効化して高速化
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller setuptools wheel
+
+    - name: Build Application
+      run: |
+        cd build
+        # OSに応じた出力先ディレクトリを決定
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          OS_TYPE="windows"
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          OS_TYPE="macos"
+        else
+          OS_TYPE="linux"
+        fi
+        pyinstaller ScreenMind_CI.spec --distpath ../dist/$OS_TYPE --workpath ../build_cache/$OS_TYPE
+      shell: bash
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: ${{ matrix.output_path }}
+        if-no-files-found: error
+        retention-days: 90
+
+    # Windowsの場合のみ、ビルドログを確認可能にする
+    - name: Show Build Logs (Windows Only)
+      if: failure() && runner.os == 'Windows'
+      run: |
+        if (Test-Path build/build_cache/windows/warn-ScreenMind.txt) { Get-Content build/build_cache/windows/warn-ScreenMind.txt }
+      shell: powershell
