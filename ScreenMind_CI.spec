@@ -3,7 +3,7 @@
 import os
 import sys
 from pathlib import Path
-from PyInstaller.utils.hooks import collect_submodules, collect_data_files, collect_all
+from PyInstaller.utils.hooks import collect_all
 
 # パス設定
 current_dir = Path(os.getcwd())
@@ -13,27 +13,19 @@ src_path = project_root / 'src'
 
 block_cipher = None
 
-# PyQt6のすべての依存関係を強制的に収集
-datas, binaries, hidden_imports = collect_all('PyQt6')
+# 主要ライブラリの依存関係を完全に収集（データ、バイナリ、インポートすべて）
+packages_to_collect = ['PyQt6', 'httpx', 'PIL', 'fastapi', 'uvicorn', 'keyboard', 'psutil', 'numpy']
+datas = []
+binaries = []
+hidden_imports = []
 
-# その他の依存関係
-hidden_imports += [
-    'httpx',
-    'PIL',
-    'PIL.ImageGrab',
-    'psutil',
-    'numpy',
-    'fastapi',
-    'uvicorn',
-    'keyboard',
-    'logging',
-    'asyncio',
-    'json',
-]
-hidden_imports += collect_submodules('uvicorn')
-hidden_imports += collect_submodules('fastapi')
+for pkg in packages_to_collect:
+    d, b, h = collect_all(pkg)
+    datas += d
+    binaries += b
+    hidden_imports += h
 
-# データファイルの追加
+# 追加のデータファイル
 datas += [
     (str(build_dir / 'models_config.json'), '.'),
     (str(project_root / 'README.txt'), '.'),
@@ -45,7 +37,7 @@ if not os.path.exists(icon_file):
     icon_file = None
 
 a = Analysis(
-    [str(build_dir / 'screenmind_lite.py')],
+    [str(build_dir / 'startup_check.py')],
     pathex=[str(src_path), str(project_root)],
     binaries=binaries,
     datas=datas,
@@ -70,13 +62,13 @@ exe = EXE(
     a.datas,
     [],
     name='ScreenMind',
-    debug=True, # デバッグ情報を表示するために一時的にTrue
+    debug=True, # エラー特定のためTrue
     bootloader_ignore_signals=False,
     strip=False,
-    upx=False, # UPXが原因で壊れることがあるため一時的にFalse
+    upx=False, # 安定性のためFalse
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True, # エラー内容を画面で見れるように一時的にTrue
+    console=True, # エラー画面を出すためTrue
     disable_windowed_traceback=False,
     target_arch=None,
     codesign_identity=None,
